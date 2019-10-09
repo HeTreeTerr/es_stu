@@ -90,12 +90,6 @@
       <artifactId>fastjson</artifactId>
       <version>1.2.46</version>
     </dependency>
-    <!--注解框架，作用在实体类上。通过一些注解来生成getter/setter访问器，以及构造方法-->
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <version>1.16.22</version>
-    </dependency>
 
     <!--es客户端的依赖，其中包含了一个核心的api:TransportClient-->
     <dependency>

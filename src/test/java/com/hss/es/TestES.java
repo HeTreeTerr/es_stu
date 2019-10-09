@@ -1,11 +1,15 @@
 package com.hss.es;
 
+import com.alibaba.fastjson.JSON;
+import com.hss.entity.Product;
 import org.apache.http.HttpHost;
 import org.apache.log4j.Logger;
+import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.junit.After;
 import org.junit.Before;
@@ -21,8 +25,18 @@ import java.net.UnknownHostException;
 public class TestES {
 
     private final static Logger logger = Logger.getLogger(TestES.class);
-
+    /**
+     * 连接es集群的端口号
+     */
     private final static int PORT = 9300;
+    /**
+     * 索引库
+     */
+    private final static String INDEX = "bigdata";
+    /**
+     * 类型
+     */
+    private final static String TYPE = "product";
     //过时（7.0过时，8.0移除）
     private TransportClient client;
     //新的
@@ -40,7 +54,7 @@ public class TestES {
 //                new TransportAddress(InetAddress.getByName("localhost"),PORT),
 //                new TransportAddress(InetAddress.getByName("localhost"),PORT));
         //单节点
-        client.addTransportAddress(new TransportAddress(InetAddress.getByName("192.168.40.188"),PORT));
+        client.addTransportAddress(new TransportAddress(InetAddress.getByName("192.168.40.123"),PORT));
 
     }
     /**
@@ -50,6 +64,22 @@ public class TestES {
     public void testEnv(){
         logger.info("开始测试");
         logger.info("client="+client.toString());
+    }
+
+    /**
+     * 使用JSON的方式新增索引
+     */
+    @Test
+    public void testNewAddIndexJsonWay(){
+        logger.info("开始使用json的方式新增索引了...");
+        Product product = new Product();
+        product.setName("spring_cloud入门到放弃");
+        product.setAuthor("李大宝");
+        product.setVersion("1.9.10");
+        String jsonStr = JSON.toJSONString(product);
+        logger.info(jsonStr);
+        IndexResponse response = client.prepareIndex(INDEX,TYPE,"1").setSource(jsonStr,XContentType.JSON).get();
+        logger.info("响应结果response="+response);
     }
 
     /**
