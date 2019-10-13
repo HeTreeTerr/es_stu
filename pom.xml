@@ -91,6 +91,12 @@
       <version>1.2.46</version>
     </dependency>
 
+    <dependency>
+      <groupId>commons-beanutils</groupId>
+      <artifactId>commons-beanutils</artifactId>
+      <version>1.9.3</version>
+    </dependency>
+
     <!--es客户端的依赖，其中包含了一个核心的api:TransportClient-->
     <dependency>
       <groupId>org.elasticsearch.client</groupId>

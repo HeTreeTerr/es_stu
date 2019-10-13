@@ -1,14 +1,21 @@
 package com.hss.es;
 
 import com.alibaba.fastjson.JSON;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hss.entity.Product;
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.http.HttpHost;
 import org.apache.log4j.Logger;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.junit.After;
@@ -16,8 +23,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * 使用java Api操作es集群测试类
@@ -79,6 +90,80 @@ public class TestES {
         String jsonStr = JSON.toJSONString(product);
         logger.info(jsonStr);
         IndexResponse response = client.prepareIndex(INDEX,TYPE,"1").setSource(jsonStr,XContentType.JSON).get();
+        logger.info("响应结果response="+response);
+    }
+
+    /**
+     * 使用map的方式新增索引
+     */
+    @Test
+    public void testNewAddIndexMapWay(){
+        logger.info("开始使用map的方式新增索引");
+        Map<String,Object> map = new LinkedHashMap<String,Object>();
+        map.put("name","zookeeper从入门到放弃");
+        map.put("author","李二宝");
+        map.put("version","1.1.0");
+        IndexResponse response = client.prepareIndex(INDEX,TYPE,"2").setSource(map).get();
+        logger.info("响应结果response="+response);
+    }
+
+    /**
+     * 使用bean的方式新增索引
+     */
+    @Test
+    public void testNewAddIndexBeanWay() throws JsonProcessingException {
+        logger.info("使用bean的方式增加索引");
+        Product product = new Product();
+        product.setName("activeMQ_从入门到放弃");
+        product.setAuthor("李二狗");
+        product.setVersion("1.5.7");
+        byte[] beanBytes = new ObjectMapper().writeValueAsBytes(product);
+
+        IndexResponse response = client.prepareIndex(INDEX,TYPE,"3").setSource(beanBytes,XContentType.JSON).get();
+        logger.info("响应结果response="+response);
+    }
+
+    /**
+     * 使用es helper的方式增加索引
+     */
+    @Test
+    public void testAddIndexHelperWay() throws IOException {
+        logger.info("正在使用es helper的方式增加索引");
+        XContentBuilder xBuilder = XContentFactory.contentBuilder(XContentType.JSON)
+                .startObject()
+                .field("name","redis_从入门到放弃")
+                .field("author","李狗蛋")
+                .field("version","1.15.6")
+                .endObject();
+        IndexResponse response = client.prepareIndex(INDEX,TYPE,"4")
+                .setSource(xBuilder).get();
+        logger.info("响应结果response="+response);
+    }
+
+    /**
+     * 根据特定的id查询索引
+     */
+    @Test
+    public void testFindIndexById() throws InvocationTargetException, IllegalAccessException {
+        logger.info("正在使用特定的id查询索引");
+        GetResponse response = client.prepareGet(INDEX,TYPE,"1").get();
+        Map<String, Object> source = response.getSource();
+
+        Product product = new Product();
+        BeanUtils.populate(product,source);
+        logger.info("product"+product);
+    }
+
+    /**
+     * es javaApi根据特定id更新索引信息
+     */
+    @Test
+    public void testUpdateById(){
+        Product product = new Product();
+        product.setAuthor("李二狗");
+        product.setVersion("1.8.7");
+        UpdateResponse response = client.prepareUpdate(INDEX,TYPE,"1")
+                .setDoc(JSON.toJSONString(product),XContentType.JSON).get();
         logger.info("响应结果response="+response);
     }
 
