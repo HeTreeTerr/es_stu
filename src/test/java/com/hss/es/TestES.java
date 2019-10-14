@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -151,7 +150,7 @@ public class TestES {
 
         Product product = new Product();
         BeanUtils.populate(product,source);
-        logger.info("product"+product);
+        logger.info("product-->"+product);
     }
 
     /**
@@ -160,7 +159,7 @@ public class TestES {
     @Test
     public void testUpdateById(){
         Product product = new Product();
-        product.setAuthor("李二狗");
+        product.setAuthor("李二小");
         product.setVersion("1.8.7");
         UpdateResponse response = client.prepareUpdate(INDEX,TYPE,"1")
                 .setDoc(JSON.toJSONString(product),XContentType.JSON).get();
