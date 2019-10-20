@@ -1,4 +1,4 @@
-package com.hss.es;
+package com.hss.book;
 
 import com.hss.entity.Product;
 import org.apache.log4j.Logger;

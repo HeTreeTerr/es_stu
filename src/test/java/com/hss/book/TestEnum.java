@@ -1,4 +1,4 @@
-package com.hss.es;
+package com.hss.book;
 
 import com.hss.Enum.GenderEnum;
 import org.apache.log4j.Logger;
@@ -15,5 +15,6 @@ public class TestEnum {
     public void test(){
 
         logger.info("男："+GenderEnum.MAN.getCode());
+        logger.info("女："+GenderEnum.WOMEN.getCode());
     }
 }
