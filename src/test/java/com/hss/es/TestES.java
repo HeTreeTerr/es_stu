@@ -7,6 +7,8 @@ import com.hss.entity.Product;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.http.HttpHost;
 import org.apache.log4j.Logger;
+import org.apache.lucene.search.TotalHits;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.update.UpdateResponse;
@@ -164,6 +166,33 @@ public class TestES {
         UpdateResponse response = client.prepareUpdate(INDEX,TYPE,"1")
                 .setDoc(JSON.toJSONString(product),XContentType.JSON).get();
         logger.info("响应结果response="+response);
+    }
+
+    /**
+     * 根据指定的id删除索引信息
+     */
+    @Test
+    public void testDeleteById(){
+
+        DeleteResponse response = client.prepareDelete(INDEX,TYPE,"otJG7m0Bef3D3lNQThP0").get();
+        String result = "delete".equals(response.getResult().toString().toLowerCase())?"删除成功":"删除失败";
+        logger.info("响应结果response="+response);
+        logger.info("删除之后的反馈信息是："+result);
+    }
+
+    /**
+     * 获取索引库中特定的Type中的document
+     */
+    @Test
+    public void testGetCount(){
+
+        TotalHits totalHits = client.prepareSearch(INDEX)
+                .setTypes(TYPE)
+                .execute()
+                .actionGet()
+                .getHits()
+                .getTotalHits();
+        logger.info("查询到的总记录数是："+totalHits.value);
     }
 
     /**
