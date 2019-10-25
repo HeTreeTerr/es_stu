@@ -7,10 +7,15 @@ import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequestBuilder;
 import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.junit.After;
 import org.junit.Before;
@@ -84,6 +89,32 @@ public class TestEsBulk {
         BulkItemResponse[] items = responses.getItems();
         for(BulkItemResponse item : items){
             logger.info(item.toString());
+        }
+    }
+
+    /**
+     * 测试：检索类型，以及分页检索
+     */
+    @Test
+    public void testSearchType(){
+        //当前页
+        int currentPage = 1;
+        //每页显示的记录条数
+        int pageSize = 2;
+
+        //开始进行定制SearchType的分页检索
+        SearchResponse response = client.prepareSearch(INDEX)
+                .setTypes(TYPE)
+                .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+                .setFrom((currentPage - 1) * pageSize)
+                .setSize(pageSize)
+                .setQuery(QueryBuilders.termQuery("name","hss"))
+                .get();
+
+        //显示检索到的信息
+        SearchHits hits = response.getHits();
+        for(SearchHit hit : hits){
+            logger.info(hit.getSourceAsString());
         }
     }
 
