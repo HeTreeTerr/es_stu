@@ -58,7 +58,7 @@ public class TestEsBulk {
 //                new TransportAddress(InetAddress.getByName("localhost"),PORT),
 //                new TransportAddress(InetAddress.getByName("localhost"),PORT));
         //单节点
-        client.addTransportAddress(new TransportAddress(InetAddress.getByName("192.168.40.123"),PORT));
+        client.addTransportAddress(new TransportAddress(InetAddress.getByName("192.168.2.105"),PORT));
 
     }
 
@@ -113,6 +113,63 @@ public class TestEsBulk {
 
         //显示检索到的信息
         SearchHits hits = response.getHits();
+        for(SearchHit hit : hits){
+            logger.info(hit.getSourceAsString());
+        }
+    }
+
+    /**
+     * boolQuery演示
+     * 需求：查询索引库中，name为xx的索引信息
+     */
+    @Test
+    public void testBoolQuery(){
+        //must必须满足，should尽量满足
+        SearchResponse response = client.prepareSearch(INDEX)
+                .setTypes(TYPE)
+                .setQuery(QueryBuilders.boolQuery()
+                        .must(QueryBuilders.matchPhraseQuery("name","hss"))
+//                        .should(QueryBuilders.wildcardQuery("name","svn"))
+                        .should(QueryBuilders.matchPhraseQuery("name","svn"))
+                )
+                .get();
+        //显示检索到的信息
+        SearchHits hits = response.getHits();
+        for(SearchHit hit : hits){
+            logger.info(hit.getSourceAsString());
+        }
+    }
+
+    /**
+     * 测试fuzzyQuery(模糊查询)
+     * 查询：内容中包含name值包含xx的索引信息
+     */
+    @Test
+    public void testFuzzQuery(){
+        SearchResponse response  = client.prepareSearch(INDEX)
+                .setTypes(TYPE)
+                .setQuery(QueryBuilders.fuzzyQuery("name","hsww"))
+                .get();
+        //显示检索到的信息
+        SearchHits hits = response.getHits();
+        for(SearchHit hit : hits){
+            logger.info(hit.getSourceAsString());
+        }
+    }
+
+    /**
+     * 查询所有
+     * matchAllQuery()匹配所有文件 match_all查询是Elasticsearch中简单的查询之一。
+     * 它使我们能够匹配索引中的所有文件。
+     */
+    @Test
+    public void testMatchAllQuery(){
+        SearchResponse searchResponse = client.prepareSearch(INDEX)
+                .setTypes(TYPE)
+                .setQuery(QueryBuilders.matchAllQuery())
+                .get();
+        // 获取命中次数，查询结果有多少对象
+        SearchHits hits = searchResponse.getHits();
         for(SearchHit hit : hits){
             logger.info(hit.getSourceAsString());
         }
