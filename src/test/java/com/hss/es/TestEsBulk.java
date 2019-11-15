@@ -16,6 +16,7 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.sort.SortOrder;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.junit.After;
 import org.junit.Before;
@@ -167,6 +168,8 @@ public class TestEsBulk {
         SearchResponse searchResponse = client.prepareSearch(INDEX)
                 .setTypes(TYPE)
                 .setQuery(QueryBuilders.matchAllQuery())
+                //只支持int型的，字符串会报错
+                //.addSort("id",SortOrder.DESC)
                 .get();
         // 获取命中次数，查询结果有多少对象
         SearchHits hits = searchResponse.getHits();
