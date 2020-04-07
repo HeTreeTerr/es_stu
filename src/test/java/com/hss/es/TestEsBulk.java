@@ -59,7 +59,7 @@ public class TestEsBulk {
 //                new TransportAddress(InetAddress.getByName("localhost"),PORT),
 //                new TransportAddress(InetAddress.getByName("localhost"),PORT));
         //单节点
-        client.addTransportAddress(new TransportAddress(InetAddress.getByName("192.168.2.105"),PORT));
+        client.addTransportAddress(new TransportAddress(InetAddress.getByName("192.168.2.103"),PORT));
 
     }
 
@@ -162,6 +162,7 @@ public class TestEsBulk {
      * 查询所有
      * matchAllQuery()匹配所有文件 match_all查询是Elasticsearch中简单的查询之一。
      * 它使我们能够匹配索引中的所有文件。
+     * 需求：查询索引库之INDEX下的TYPE下的所有记录（第一页）信息，且根据id进行降序排列
      */
     @Test
     public void testMatchAllQuery(){
@@ -170,6 +171,26 @@ public class TestEsBulk {
                 .setQuery(QueryBuilders.matchAllQuery())
                 //只支持int型的，字符串会报错
                 //.addSort("id",SortOrder.DESC)
+                .get();
+        // 获取命中次数，查询结果有多少对象
+        SearchHits hits = searchResponse.getHits();
+        for(SearchHit hit : hits){
+            logger.info(hit.getSourceAsString());
+        }
+    }
+
+    /**
+     * regexpQuery演示
+     * 案例：查询索引库下INDEX下的TYPE之下name字段包含有oo的索引信息。（使用regexpQuery的形式实现）
+     */
+    @Test
+    public void testRegexpQuery(){
+        //正则表达式
+        String regex = ".+kee.+";
+
+        SearchResponse searchResponse = client.prepareSearch(INDEX)
+                .setTypes(TYPE)
+                .setQuery(QueryBuilders.regexpQuery("name",regex))
                 .get();
         // 获取命中次数，查询结果有多少对象
         SearchHits hits = searchResponse.getHits();
