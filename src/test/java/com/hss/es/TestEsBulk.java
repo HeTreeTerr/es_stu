@@ -59,7 +59,7 @@ public class TestEsBulk {
 //                new TransportAddress(InetAddress.getByName("localhost"),PORT),
 //                new TransportAddress(InetAddress.getByName("localhost"),PORT));
         //单节点
-        client.addTransportAddress(new TransportAddress(InetAddress.getByName("192.168.2.103"),PORT));
+        client.addTransportAddress(new TransportAddress(InetAddress.getByName("192.168.2.105"),PORT));
 
     }
 
@@ -192,6 +192,46 @@ public class TestEsBulk {
                 .setTypes(TYPE)
                 .setQuery(QueryBuilders.regexpQuery("name",regex))
                 .get();
+        // 获取命中次数，查询结果有多少对象
+        SearchHits hits = searchResponse.getHits();
+        for(SearchHit hit : hits){
+            logger.info(hit.getSourceAsString());
+        }
+    }
+
+    /**
+     * termQuery
+     * 词条查询是ElasticSearch中的一个简单查询。它仅匹配在给定字段中
+     * 含有该词条的文档，而且是确切的、未经分析的词条
+     * 需求：使用termQuery,查询出author中含有‘天’，且包含‘下’的索引信息。
+     * 暂时，只识别单个字，不识别词（需要中文分词）
+     */
+    @Test
+    public void testTermQuery(){
+        SearchResponse searchResponse = client.prepareSearch(INDEX)
+                .setTypes(TYPE)
+//                .setQuery(QueryBuilders.termQuery("author","小二"))
+                .setQuery(QueryBuilders.termsQuery("author","王","小"))
+                .get();
+
+        // 获取命中次数，查询结果有多少对象
+        SearchHits hits = searchResponse.getHits();
+        for(SearchHit hit : hits){
+            logger.info(hit.getSourceAsString());
+        }
+    }
+
+    /**
+     * wildcardQuery
+     * *匹配多个字符，？匹配一个字符
+     * 注意：避免*开始，会检索大量内容造成效率缓慢
+     * 需求：使用wildcardQuery，查询出name中包含有m的所有索引信息
+     */
+    @Test
+    public void testWildcardQuery(){
+        SearchResponse searchResponse = client.prepareSearch(INDEX)
+                .setTypes(TYPE)
+                .setQuery(QueryBuilders.wildcardQuery("name","??????_*")).get();
         // 获取命中次数，查询结果有多少对象
         SearchHits hits = searchResponse.getHits();
         for(SearchHit hit : hits){
