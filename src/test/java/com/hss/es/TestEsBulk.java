@@ -59,7 +59,7 @@ public class TestEsBulk {
 //                new TransportAddress(InetAddress.getByName("localhost"),PORT),
 //                new TransportAddress(InetAddress.getByName("localhost"),PORT));
         //单节点
-        client.addTransportAddress(new TransportAddress(InetAddress.getByName("192.168.2.105"),PORT));
+        client.addTransportAddress(new TransportAddress(InetAddress.getByName("192.168.2.106"),PORT));
 
     }
 
@@ -232,6 +232,33 @@ public class TestEsBulk {
         SearchResponse searchResponse = client.prepareSearch(INDEX)
                 .setTypes(TYPE)
                 .setQuery(QueryBuilders.wildcardQuery("name","??????_*")).get();
+        // 获取命中次数，查询结果有多少对象
+        SearchHits hits = searchResponse.getHits();
+        for(SearchHit hit : hits){
+            logger.info(hit.getSourceAsString());
+        }
+    }
+
+    /**
+     * 测试中文分词插件（没有安装中文分词插件的情形）
+     *
+     * 查询ok索引中type之news中的字段content中包含有中的索引信息
+     */
+    @Test
+    public void testChinesePlugin(){
+        /*SearchResponse searchResponse = client.prepareSearch("ok")
+                .setTypes("news")
+                .setQuery(QueryBuilders.termQuery("content","中国"))
+                .get();
+        // 获取命中次数，查询结果有多少对象
+        SearchHits hits = searchResponse.getHits();
+        for(SearchHit hit : hits){
+            logger.info(hit.getSourceAsString());
+        }*/
+        SearchResponse searchResponse = client.prepareSearch("chinese")
+//                .setTypes("_doc")
+                .setQuery(QueryBuilders.termQuery("content","洛杉矶"))
+                .get();
         // 获取命中次数，查询结果有多少对象
         SearchHits hits = searchResponse.getHits();
         for(SearchHit hit : hits){
