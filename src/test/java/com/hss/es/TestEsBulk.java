@@ -246,15 +246,18 @@ public class TestEsBulk {
      */
     @Test
     public void testChinesePlugin(){
-        /*SearchResponse searchResponse = client.prepareSearch("ok")
-                .setTypes("news")
-                .setQuery(QueryBuilders.termQuery("content","中国"))
+//        中文分词前
+        /*SearchResponse searchResponse = client.prepareSearch("bigdata")
+                .setTypes("product")
+                .setQuery(QueryBuilders.termQuery("name","入门"))
                 .get();
         // 获取命中次数，查询结果有多少对象
         SearchHits hits = searchResponse.getHits();
         for(SearchHit hit : hits){
             logger.info(hit.getSourceAsString());
         }*/
+
+//        中文分词后
         SearchResponse searchResponse = client.prepareSearch("chinese")
 //                .setTypes("_doc")
                 .setQuery(QueryBuilders.termQuery("content","洛杉矶"))
